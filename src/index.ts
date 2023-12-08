@@ -23,7 +23,7 @@ app.put('/regions/:regionId', updateRegion);
 app.delete('/regions/:regionId', deleteRegion);
 app.get('/regions/:regionId', getRegion);
 
-mongoose.connect('mongodb://localhost:27017/ozmap', {
+mongoose.connect('mongodb://ozmap:27017/ozmap', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }as ConnectOptions);
