@@ -27,3 +27,5 @@ O middleware express.json() é configurado para permitir que o servidor interpre
 Conexão com Banco de Dados:
 
 A conexão com o banco de dados MongoDB usando o Mongoose indica que os dados são persistentes e armazenados em um banco de dados.
+
+6) Para usar o serviço da API IPStack acesse o site https://ipstack.com/ e adiquira um key para usá-lo gratuitamente.
