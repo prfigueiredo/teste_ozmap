@@ -1,6 +1,12 @@
-
 import { Request, Response } from 'express';
+import axios from 'axios';
 import { UserModel } from '../models/user.model';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Carregar variáveis de ambiente do arquivo .env
+
+const IPSTACK_API_URL = 'http://api.ipstack.com/';
+const IPSTACK_API_KEY = process.env.IPSTACK_API_KEY; // Obter a chave de API da variável de ambiente
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -11,17 +17,21 @@ export const createUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Name and email are required.' });
     }
 
-    // Validar se apenas endereço ou coordenadas são fornecidos, não ambos
+    // Validar se apenas endereço ou coordenadas são fornecidos, não ambos ou nenhum
     if ((address && coordinates) || (!address && !coordinates)) {
       return res.status(400).json({ message: 'Provide either address or coordinates, not both or none.' });
     }
 
-    // Se fornecido endereço, resolver coordenadas usando um serviço de geolocalização (simulado aqui)
+    // Se fornecido endereço, resolver coordenadas usando a API do IPstack
     let resolvedCoordinates: [number, number] | undefined;
     if (address) {
-      // Aqui você pode chamar um serviço real de geolocalização
-      // Por enquanto, simulamos com coordenadas fixas
-      resolvedCoordinates = [10.1234, 20.5678];
+      const geoLocationServiceUrl = `${IPSTACK_API_URL}${encodeURIComponent(address)}?access_key=${IPSTACK_API_KEY}`;
+      
+      // Faça uma solicitação ao serviço de geolocalização usando axios
+      const response = await axios.get(geoLocationServiceUrl);
+
+      // Extraia as coordenadas da resposta (isso depende da estrutura da resposta do serviço)
+      resolvedCoordinates = [response.data.latitude, response.data.longitude];
     } else {
       resolvedCoordinates = coordinates;
     }
@@ -35,7 +45,6 @@ export const createUser = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -52,12 +61,12 @@ export const updateUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Provide either address or coordinates, not both or none.' });
     }
 
-    // Se fornecido endereço, resolver coordenadas usando um serviço de geolocalização (simulado aqui)
+    // Se fornecido endereço, resolver coordenadas usando a API do IPstack (ou seu serviço real)
     let resolvedCoordinates: [number, number] | undefined;
     if (address) {
-      // Aqui você pode chamar um serviço real de geolocalização
-      // Por enquanto, simulamos com coordenadas fixas
-      resolvedCoordinates = [10.1234, 20.5678];
+      const geoLocationServiceUrl = `${IPSTACK_API_URL}${encodeURIComponent(address)}?access_key=${IPSTACK_API_KEY}`;
+      const response = await axios.get(geoLocationServiceUrl);
+      resolvedCoordinates = [response.data.latitude, response.data.longitude];
     } else {
       resolvedCoordinates = coordinates;
     }
@@ -75,8 +84,8 @@ export const updateUser = async (req: Request, res: Response) => {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
-  };
-  
+};
+
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -95,7 +104,8 @@ export const deleteUser = async (req: Request, res: Response) => {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
-  };
+};
+
 export const getUser = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -113,5 +123,4 @@ export const getUser = async (req: Request, res: Response) => {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
-  };
-
+};
